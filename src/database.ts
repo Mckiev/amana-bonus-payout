@@ -44,13 +44,16 @@ const getWithdrawalTotals = async(): Promise<Record<string, number>> => {
   return withdrawalTotals;
 };
 
-const getBalances = async(): Promise<Record<string, number>> => {
+const getPositiveBalances = async(): Promise<Record<string, number>> => {
   const deposits = await getDepositTotals();
   const withdrawals = await getWithdrawalTotals();
   const balances = Object.keys(deposits).reduce((acc, manifolduserid) => {
     const deposit = deposits[manifolduserid];
     const withdrawal = withdrawals[manifolduserid] ?? 0;
     const balance = deposit - withdrawal;
+    if (balance <= 0) {
+      return acc;
+    }
     return {
       ...acc,
       [manifolduserid]: balance,
@@ -103,7 +106,7 @@ const createDeposit = async(
 export default {
   getDepositTotals,
   getWithdrawalTotals,
-  getBalances,
+  getPositiveBalances,
   getDepositAddress,
   createDeposit,
 };

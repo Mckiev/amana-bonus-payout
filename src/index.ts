@@ -1,4 +1,4 @@
-import './config';
+import config from './config';
 import database from './database';
 import { askForConfirmation, askIfRealRun } from './prompts';
 
@@ -7,7 +7,7 @@ const BONUS_AMOUNT = 100; // 100 AMANA
 const main = async(): Promise<void> => {
   const isRealRun = await askIfRealRun();
   console.log(`Beginning a ${isRealRun ? 'production' : 'test'} run of the AMANA bonus payout.`);
-  const balances = await database.getBalances();
+  const balances = await database.getPositiveBalances();
   const payments = Object.entries(balances)
     .map(([manifolduserid, balance]) => ({
       manifolduserid,
@@ -34,7 +34,7 @@ const main = async(): Promise<void> => {
     console.log(`Submitting the bonus payment of ${bonus} to ${manifolduserid}...`);
     const railgunAddress = await database.getDepositAddress(manifolduserid);
     console.log(`The railgun address for ${manifolduserid} is ${railgunAddress}.`);
-    await database.createDeposit(railgunAddress, manifolduserid, bonus);
+    await database.createDeposit(railgunAddress, config.botUserID, bonus);
     console.log(`The bonus payment of ${payment.bonus} to ${payment.manifolduserid} at ${railgunAddress} was successfully entered into the database as a deposit to be processed.`);
   }
   console.log('All bonus payments have been successfully submitted.');
